@@ -1,8 +1,6 @@
 """
 这个模块提供了配置初始化功能，主要用于检查和初始化各种配置文件。
 
-模块的核心是 `init_config` 函数，它负责检查配置文件的存在性，若不存在则创建默认配置文件。
-
 :author: assassing
 :contact: https://github.com/hxz393
 :copyright: Copyright 2024, hxz393. 保留所有权利。

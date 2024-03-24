@@ -46,7 +46,7 @@ class ConfigManager(QObject):
         if config_type == 'main':
             return self._config_main, self.config_main_updated, CONFIG_MAIN_PATH
         else:
-            return self._config_user, self.config_user_updated, self._config_main.get('config_user_path', '')
+            return self._config_user, self.config_user_updated, self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path'])
 
     def get_config(self, config_type: str) -> Optional[Dict[str, str]]:
         """

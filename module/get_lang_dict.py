@@ -12,7 +12,7 @@ from typing import Dict
 from config.lang_dict_all import LANG_DICTS
 
 from config.settings import CONFIG_MAIN_PATH, DEFAULT_CONFIG_MAIN
-from lib.read_json_to_dict import read_json_to_dict
+from lib.read_json import read_json
 
 logger = logging.getLogger(__name__)
 
@@ -23,5 +23,5 @@ def get_lang_dict() -> Dict[str, str]:
 
     :return: 语言字典，键为字符串标识，值为对应的翻译文本。
     """
-    config_main = read_json_to_dict(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
+    config_main = read_json(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
     return LANG_DICTS[config_main.get('lang', 'English')]

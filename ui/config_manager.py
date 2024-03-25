@@ -8,7 +8,7 @@
 
 import copy
 import logging
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Any
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -33,20 +33,16 @@ class ConfigManager(QObject):
 
     def __init__(self):
         super().__init__()
+        self.reload_config()
+
+    def reload_config(self) -> None:
+        """
+        重载配置
+
+        :return: 无返回值。
+        """
         self._config_main = read_json(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
         self._config_user = read_json(self._config_main.get('config_user_path', '')) or DEFAULT_CONFIG_USER
-
-    def _get_config_objects(self, config_type: str) -> Tuple[Dict[str, Any], pyqtSignal, str]:
-        """
-        根据配置类型返回配置字典、更新信号和配置文件路径。
-
-        :param config_type: 配置类型。
-        :return: 配置字典、对应的更新信号和配置文件路径。
-        """
-        if config_type == 'main':
-            return self._config_main, self.config_main_updated, CONFIG_MAIN_PATH
-        else:
-            return self._config_user, self.config_user_updated, self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path'])
 
     def get_config(self, config_type: str) -> Optional[Dict[str, Any]]:
         """
@@ -56,8 +52,10 @@ class ConfigManager(QObject):
         :return: 包含配置的字典副本，如果出现错误则返回 None。
         """
         try:
-            config, _, _ = self._get_config_objects(config_type)
-            return copy.deepcopy(config)
+            if config_type == 'main':
+                return copy.deepcopy(self._config_main)
+            else:
+                return copy.deepcopy(self._config_user)
         except Exception:
             logger.exception(f"Failed to get config: {config_type}")
             return None
@@ -73,9 +71,15 @@ class ConfigManager(QObject):
         :return: 无
         """
         try:
-            config, signal, path = self._get_config_objects(config_type)
-            signal.emit()
-            write_json(path, new_config)
+            if config_type == 'main':
+                write_json(CONFIG_MAIN_PATH, new_config)
+            else:
+                write_json(self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path']), new_config)
+
+            # 重载配置
+            self.reload_config()
+            self.config_main_updated.emit()
+            self.config_user_updated.emit()
             logger.info(f"Config updated: {config_type}")
         except Exception:
             logger.exception(f"Failed to update config: {config_type}")

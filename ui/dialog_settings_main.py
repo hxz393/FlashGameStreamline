@@ -14,8 +14,10 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QDialogButtonBox, QHBoxLayout, Q
 
 from config.lang_dict_all import LANG_DICTS
 from lib.get_resource_path import get_resource_path
+from lib.read_json import read_json
 from ui.config_manager import ConfigManager
 from ui.lang_manager import LangManager
+from ui.main_table import MainTable
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class DialogSettingsMain(QDialog):
                  lang_manager: LangManager,
                  config_manager: ConfigManager):
         super().__init__(flags=Qt.Dialog | Qt.WindowCloseButtonHint)
-        # 初始化两个管理器
+        # 初始化管理器
         self.lang_manager = lang_manager
         self.config_manager = config_manager
         # 获取管理器中的配置

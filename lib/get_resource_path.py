@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 def get_resource_path(relative_path: Union[str, os.PathLike]) -> Optional[str]:
     """
-    获取资源的绝对路径。这个函数适用于 PyInstaller 打包后的可执行文件。
+    获取资源的绝对路径。
 
     :param relative_path: 相对路径，可以是字符串或 os.PathLike 对象。
     :return: 资源的绝对路径，如果发生错误则返回 None。

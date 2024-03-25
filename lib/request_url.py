@@ -1,5 +1,5 @@
 """
-此模块主要用于发送HTTP GET请求并处理可能的异常。
+此模块主要用于发送 HTTP GET 请求并处理可能的异常。
 
 :author: assassing
 :contact: https://github.com/hxz393

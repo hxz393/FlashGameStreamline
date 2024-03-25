@@ -8,7 +8,7 @@
 
 import copy
 import logging
-from typing import Dict, Optional, Tuple, List, Union
+from typing import Dict, Optional, Tuple, Any
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -36,7 +36,7 @@ class ConfigManager(QObject):
         self._config_main = read_json(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
         self._config_user = read_json(self._config_main.get('config_user_path', '')) or DEFAULT_CONFIG_USER
 
-    def _get_config_objects(self, config_type: str) -> Tuple[Union[Dict, List], pyqtSignal, str]:
+    def _get_config_objects(self, config_type: str) -> Tuple[Dict[str, Any], pyqtSignal, str]:
         """
         根据配置类型返回配置字典、更新信号和配置文件路径。
 
@@ -48,7 +48,7 @@ class ConfigManager(QObject):
         else:
             return self._config_user, self.config_user_updated, self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path'])
 
-    def get_config(self, config_type: str) -> Optional[Union[Dict, List]]:
+    def get_config(self, config_type: str) -> Optional[Dict[str, Any]]:
         """
         获取配置的副本。
 
@@ -64,7 +64,7 @@ class ConfigManager(QObject):
 
     def update_config(self,
                       config_type: str,
-                      new_config: Union[Dict, List]) -> None:
+                      new_config: Dict[str, Any]) -> None:
         """
         更新配置。
 
@@ -74,9 +74,8 @@ class ConfigManager(QObject):
         """
         try:
             config, signal, path = self._get_config_objects(config_type)
-            config.update(new_config)
             signal.emit()
-            write_json(path, config)
+            write_json(path, new_config)
             logger.info(f"Config updated: {config_type}")
         except Exception:
             logger.exception(f"Failed to update config: {config_type}")

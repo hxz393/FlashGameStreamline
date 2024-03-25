@@ -1,5 +1,5 @@
 """
-本模块提供用户界面中的新增项功能。
+本模块提供向列表中新增规则的功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -15,19 +15,19 @@ from PyQt5.QtWidgets import QAction, QTableWidget, QDialog, QWidget, QHBoxLayout
 
 from lib.get_resource_path import get_resource_path
 from ui.config_manager import ConfigManager
-from ui.lang_manager import LangManager
 from ui.dialog_table import DialogTable
+from ui.lang_manager import LangManager
 
 logger = logging.getLogger(__name__)
 
 
 class ActionAdd(QObject):
     """
-    处理用户界面中新增操作的类。
+    新增规则操作的类。
 
     :param lang_manager: 语言管理器，用于处理界面语言设置。
     :param config_manager: 配置管理器，用于管理应用配置。
-    :param table: 主表格界面对象。
+    :param table: 主表格对象。
     """
     status_updated = pyqtSignal(str)
 
@@ -70,52 +70,50 @@ class ActionAdd(QObject):
         """
         向表格中插入一行数据。
 
-        :param row: 要更新的行索引。
-        :param url: url 地址。
+        :param row: 要插入的行索引。
+        :param url: 用于处理的 URL 地址。
         :param info: 包括描述和启用状态的映射字典。例如：{"active": true, "description": "xxx"}
         :return: 无返回值。
         """
-        # 创建一个 QWidget 及其布局来存放复选框，并使其居中
-        chk_box_widget = QWidget()
-        chk_box_layout = QHBoxLayout(chk_box_widget)
-        chk_box_layout.setAlignment(Qt.AlignCenter)
-        chk_box_layout.setContentsMargins(0, 0, 0, 0)
-        chk_box_item = QCheckBox()
-        chk_box_item.setCheckState(Qt.Checked if info["active"] else Qt.Unchecked)
-        chk_box_item.setEnabled(False)
-        chk_box_layout.addWidget(chk_box_item)
-        self.table.setCellWidget(row, 0, chk_box_widget)
-        # 描述
+        # 创建一个 QWidget 及其布局来存放启用状态复选框
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setContentsMargins(0, 0, 0, 0)
+        check_box = QCheckBox()
+        check_box.setCheckState(Qt.Checked if info["active"] else Qt.Unchecked)
+        check_box.setEnabled(False)
+        layout.addWidget(check_box)
+        # 向单元格插入一行内容
+        self.table.setCellWidget(row, 0, widget)
         self.table.setItem(row, 1, QTableWidgetItem(info["description"]))
-        # 地址
         self.table.setItem(row, 2, QTableWidgetItem(url))
 
     def add_item(self) -> None:
         """
-        新增规则操作，并将其写入配置文件。
+        往表格中新增规则条目，并更新配置文件。
 
         :return: 无返回值。
         """
         try:
-            # 获取配置
+            # 从配置管理器获取配置副本
             config_user = self.config_manager.get_config('user')
-
-            # 打开弹窗
             dialog = DialogTable(self.lang_manager)
+            # 打开输入弹窗输入内容，点击确定后将条目插入到表格末尾
             if dialog.exec_() == QDialog.Accepted:
-                row_count = self.table.rowCount()
+                row = self.table.rowCount()
                 info = {"active": False, "description": dialog.description_edit.text()}
                 url = dialog.url_edit.text()
-                self.table.insertRow(row_count)
-                self.insert_row(row_count, url, info)
-                # 插入新条目到配置
+                self.table.insertRow(row)
+                self.insert_row(row, url, info)
+                # 更新配置
                 config_user[url] = info
 
             # 更新配置管理器中的配置
             self.config_manager.update_config('user', config_user)
             # 发送到状态栏
             self.status_updated.emit(self.lang['ui.action_add_3'])
-            logger.info("Item added.")
+            logger.info("New Item added")
         except Exception:
             logger.exception("Error occurred while add item")
             self.status_updated.emit(self.lang['label_status_error'])

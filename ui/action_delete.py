@@ -1,5 +1,5 @@
 """
-本模块提供用户界面中的删除选中项功能。
+本模块提供删除表格内选中项的功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -21,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 class ActionDelete(QObject):
     """
-    处理用户界面中删除操作的类。
+    处理删除操作的类。
 
     :param lang_manager: 语言管理器，用于处理界面语言设置。
     :param config_manager: 配置管理器，用于管理应用配置。
-    :param table: 主表格界面对象。
+    :param table: 主表格对象。
     """
     status_updated = pyqtSignal(str)
 
@@ -63,14 +63,14 @@ class ActionDelete(QObject):
 
     def delete_items(self) -> None:
         """
-        执行删除选中项目的操作，并将其写入配置文件。
+        执行删除选中项目的操作，并更新配置文件。
 
         :return: 无返回值。
         """
         try:
             # 获取配置
             config_user = self.config_manager.get_config('user')
-            # 获取选中行的索引，并按照从大到小的顺序排序
+            # 获取选中行的索引，并按照从大到小的顺序排序，从而保证删除的顺序不会乱
             rows_to_delete = sorted([index.row() for index in self.table.selectionModel().selectedRows()], reverse=True)
 
             # 遍历并删除行，以及更新配置

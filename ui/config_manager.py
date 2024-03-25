@@ -8,13 +8,13 @@
 
 import copy
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List, Union
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from config.settings import CONFIG_MAIN_PATH, DEFAULT_CONFIG_MAIN, DEFAULT_CONFIG_USER
-from lib.read_json_to_dict import read_json_to_dict
-from lib.write_dict_to_json import write_dict_to_json
+from lib.read_json import read_json
+from lib.write_json import write_json
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +33,10 @@ class ConfigManager(QObject):
 
     def __init__(self):
         super().__init__()
-        self._config_main = read_json_to_dict(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
-        self._config_user = read_json_to_dict(self._config_main.get('config_user_path', '')) or DEFAULT_CONFIG_USER
+        self._config_main = read_json(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
+        self._config_user = read_json(self._config_main.get('config_user_path', '')) or DEFAULT_CONFIG_USER
 
-    def _get_config_objects(self, config_type: str) -> Tuple[Dict[str, str], pyqtSignal, str]:
+    def _get_config_objects(self, config_type: str) -> Tuple[Union[Dict, List], pyqtSignal, str]:
         """
         根据配置类型返回配置字典、更新信号和配置文件路径。
 
@@ -48,7 +48,7 @@ class ConfigManager(QObject):
         else:
             return self._config_user, self.config_user_updated, self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path'])
 
-    def get_config(self, config_type: str) -> Optional[Dict[str, str]]:
+    def get_config(self, config_type: str) -> Optional[Union[Dict, List]]:
         """
         获取配置的副本。
 
@@ -62,7 +62,9 @@ class ConfigManager(QObject):
             logger.exception(f"Failed to get config: {config_type}")
             return None
 
-    def update_config(self, config_type: str, new_config: Dict[str, str]) -> None:
+    def update_config(self,
+                      config_type: str,
+                      new_config: Union[Dict, List]) -> None:
         """
         更新配置。
 
@@ -74,7 +76,7 @@ class ConfigManager(QObject):
             config, signal, path = self._get_config_objects(config_type)
             config.update(new_config)
             signal.emit()
-            write_dict_to_json(path, config)
+            write_json(path, config)
             logger.info(f"Config updated: {config_type}")
         except Exception:
             logger.exception(f"Failed to update config: {config_type}")

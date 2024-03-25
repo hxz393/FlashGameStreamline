@@ -9,8 +9,8 @@
 import logging
 import os
 
-from config.settings import DEFAULT_CONFIG_MAIN, CONFIG_MAIN_PATH
-from lib.write_dict_to_json import write_dict_to_json
+from config.settings import DEFAULT_CONFIG_MAIN, CONFIG_MAIN_PATH, DEFAULT_CONFIG_USER
+from lib.write_json import write_json
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ def init_config() -> None:
     """
     try:
         if not os.path.isfile(CONFIG_MAIN_PATH):
-            write_dict_to_json(CONFIG_MAIN_PATH, DEFAULT_CONFIG_MAIN)
+            write_json(CONFIG_MAIN_PATH, DEFAULT_CONFIG_MAIN)
+            write_json(DEFAULT_CONFIG_MAIN['config_user_path'], DEFAULT_CONFIG_USER)
     except Exception:
         logger.exception("Failed to initialize configuration")

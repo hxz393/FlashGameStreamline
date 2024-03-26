@@ -1,5 +1,5 @@
 """
-此模块提供用于管理和展示日志相关操作的用户界面组件。
+此模块提供打开日志窗口功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -14,15 +14,15 @@ from PyQt5.QtWidgets import QAction
 
 from lib.get_resource_path import get_resource_path
 from ui.dialog_logs import DialogLogs
-from ui.lang_manager import LangManager
 from ui.global_signals import Global_Signals
+from ui.lang_manager import LangManager
 
 logger = logging.getLogger(__name__)
 
 
 class ActionLogs(QObject):
     """
-    此类负责创建日志查看的动作，包括初始化界面组件和处理日志查看相关的事件。它利用 `DialogLogs` 和 `LangManager` 来展示和管理日志信息。
+    此类负责创建日志查看的动作。
 
     :param lang_manager: 语言管理器，用于更新动作的显示语言。
     """
@@ -30,10 +30,8 @@ class ActionLogs(QObject):
 
     def __init__(self, lang_manager: LangManager):
         super().__init__()
-        # 实例化语言管理类
         self.lang_manager = lang_manager
         self.lang_manager.lang_updated.connect(self.update_lang)
-
         self.init_ui()
 
     def init_ui(self) -> None:
@@ -64,11 +62,11 @@ class ActionLogs(QObject):
         :return: 无返回值。
         """
         try:
-            # 实例化显示方式，非阻塞调用。exec_()为阻塞调用。
+            # 实例化显示方式，非阻塞调用。阻塞调用为 self.dialog_logs.exec_()
             self.dialog_logs = DialogLogs(self.lang_manager)
             self.dialog_logs.status_updated.connect(self.forward_status)
             self.dialog_logs.show()
-            # 连接全局信号，主窗口关闭时一并关闭。
+            # 连接全局信号，主窗口关闭时一并关闭日志窗口
             Global_Signals.close_all.connect(self.close_dialog)
         except Exception:
             logger.exception("An error occurred while opening the logs dialog")

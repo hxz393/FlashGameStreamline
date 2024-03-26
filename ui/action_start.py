@@ -82,7 +82,7 @@ class LoggerAddon:
         content_length_kb = len(flow.response.content) / 1024
         info = f"{method} {url} {http_version} << {status_code} {reason} {content_length_kb:.1f}KB"
 
-        logging.info(info)
+        logging.warning(info) if status_code == 403 else logging.info(info)
 
 
 class ActionStart(QObject):

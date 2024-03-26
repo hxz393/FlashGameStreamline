@@ -7,7 +7,9 @@
 """
 
 import logging
+
 from PyQt5.QtWidgets import QStatusBar, QLabel
+
 from ui.lang_manager import LangManager
 
 logger = logging.getLogger(__name__)
@@ -53,9 +55,6 @@ class StatusBar(QStatusBar):
         :return: 无返回值。
         """
         try:
-            if not isinstance(message, str):
-                logger.warning("Message must be a string.")
-                return
-            self.label.setText(message)
+            self.label.setText(str(message))
         except Exception:
             logger.exception("Error while displaying message on status bar.")

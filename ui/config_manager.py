@@ -1,5 +1,5 @@
 """
-这个模块提供了配置管理功能，主要用于处理和更新应用程序的配置信息。
+这个模块提供了配置管理功能，主要用于获取和更新应用程序的配置信息。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -23,8 +23,6 @@ class ConfigManager(QObject):
     """
     配置管理器类，负责管理和更新应用程序的配置信息。
 
-    该类包括获取和更新配置的方法，同时提供信号以通知配置更新。
-
     :ivar config_main_updated: 当主配置更新时发出的信号。
     :ivar config_user_updated: 当用户配置更新时发出的信号。
     """
@@ -33,11 +31,11 @@ class ConfigManager(QObject):
 
     def __init__(self):
         super().__init__()
-        self.reload_config()
+        self.load_config()
 
-    def reload_config(self) -> None:
+    def load_config(self) -> None:
         """
-        重载配置
+        载入配置。
 
         :return: 无返回值。
         """
@@ -76,8 +74,8 @@ class ConfigManager(QObject):
             else:
                 write_json(self._config_main.get('config_user_path', DEFAULT_CONFIG_MAIN['config_user_path']), new_config)
 
-            # 重载配置
-            self.reload_config()
+            # 重载配置，发送更新信号
+            self.load_config()
             self.config_main_updated.emit()
             self.config_user_updated.emit()
             logger.info(f"Config updated: {config_type}")

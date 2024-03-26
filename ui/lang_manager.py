@@ -13,7 +13,8 @@ from typing import Dict, Optional
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from config.lang_dict_all import LANG_DICTS
-from module.get_lang_dict import get_lang_dict
+from config.settings import DEFAULT_CONFIG_MAIN, CONFIG_MAIN_PATH
+from lib.read_json import read_json
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +23,14 @@ class LangManager(QObject):
     """
     语言管理类，用于管理和更新应用程序的语言字典。
 
-    此类继承自 QObject，可发出语言更新的信号。它通过 `get_lang_dict` 函数获取当前语言字典，并提供了更新语言的功能。
-
     :ivar _lang_dict: 当前使用的语言字典。
-    :vartype _lang_dict: dict
     """
     lang_updated = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self._lang_dict = get_lang_dict()
+        config_main = read_json(CONFIG_MAIN_PATH) or DEFAULT_CONFIG_MAIN
+        self._lang_dict = LANG_DICTS[config_main.get('lang', 'English')]
 
     def get_lang(self) -> Optional[Dict[str, str]]:
         """

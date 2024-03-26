@@ -4,6 +4,7 @@ UI 相关函数
 """
 from .message_show import message_show
 from .status_bar import StatusBar
+from .tray_icon import TrayIcon
 from .lang_manager import LangManager
 from .config_manager import ConfigManager
 from .main_table import MainTable

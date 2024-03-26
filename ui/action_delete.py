@@ -68,24 +68,14 @@ class ActionDelete(QObject):
         :return: 无返回值。
         """
         try:
-            # 获取配置
             config_user = self.config_manager.get_config('user')
             # 获取选中行的索引，并按照从大到小的顺序排序，从而保证删除的顺序不会乱
             rows_to_delete = sorted([index.row() for index in self.table.selectionModel().selectedRows()], reverse=True)
-
             # 遍历并删除行，以及更新配置
             for row in rows_to_delete:
-                # 根据行索引获取对应的配置键值
-                key_to_delete = self.table.item(row, 2).text()
-                if key_to_delete in config_user:
-                    # 从配置中删除对应的键值对
-                    del config_user[key_to_delete]
-                # 删除表格中的行
+                config_user.pop(self.table.item(row, 2).text(), None)
                 self.table.removeRow(row)
-
-            # 更新配置管理器中的配置
             self.config_manager.update_config('user', config_user)
-            # 发送到状态栏
             self.status_updated.emit(f"{len(rows_to_delete)} {self.lang['ui.action_delete_3']}")
             logger.info(f"{len(rows_to_delete)} Items deleted.")
         except Exception:

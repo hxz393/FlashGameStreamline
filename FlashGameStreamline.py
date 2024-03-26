@@ -9,13 +9,13 @@ Flash 网页游戏加速工具。通过运行代理，阻止指定资源下载�
 import logging
 import os
 import sys
-from multiprocessing import freeze_support
 
 from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QWidget, QToolBar
 
 from config.settings import LOG_PATH, PROGRAM_NAME, CONFIG_MAIN_PATH, DEFAULT_CONFIG_MAIN, DEFAULT_CONFIG_USER
 from lib.get_resource_path import get_resource_path
+from lib.hide_console import hide_console
 from lib.logging_config import logging_config
 from lib.write_json import write_json
 from ui import (Global_Signals, LangManager, ConfigManager, StatusBar, MainTable,
@@ -224,6 +224,7 @@ def main() -> None:
 
 
 if __name__ == '__main__':
+    # 应用程序启动时调用，隐藏大黑框控制台，调整日志设置
     logging_config(log_file=LOG_PATH, console_output=True, max_log_size=1, log_level='INFO')
-    freeze_support()
+    hide_console()
     main()

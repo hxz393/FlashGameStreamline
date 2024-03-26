@@ -168,5 +168,6 @@ class DialogAbout(QDialog):
         info = QTextEdit()
         info.setHtml(self.lang['ui.dialog_about_7'])
         info.setReadOnly(True)
+        info.OpenExternalLinks = True
 
         return info

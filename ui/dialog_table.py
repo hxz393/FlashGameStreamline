@@ -1,5 +1,5 @@
 """
-本文件定义了一个表格对话框的类 `DialogTable`，用于在表格新增和修改数据时的交互。
+本模块提供定义了一个表格用的对话框，用于新增和修改数据。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class DialogTable(QDialog):
     """
-    `DialogTable` 类用于弹出交互对话框，用于表格内容修改新增。
+    弹出交互对话框，用于表格内容修改新增。
 
     :param lang_manager: 语言管理器，用于更新动作的显示语言。
     """
@@ -40,18 +40,18 @@ class DialogTable(QDialog):
         self.setWindowTitle(self.lang['ui.dialog_table_1'])
         self.setWindowIcon(QIcon(get_resource_path('media/icons8-log-26.png')))
         # 添加元素
-        self.layout = QVBoxLayout(self)
+        layout = QVBoxLayout(self)
         # 描述信息
         self.description_edit = QLineEdit(self)
-        self.layout.addWidget(QLabel(f"{self.lang['ui.table_main_2']}:"))
-        self.layout.addWidget(self.description_edit)
+        layout.addWidget(QLabel(f"{self.lang['ui.table_main_2']}:"))
+        layout.addWidget(self.description_edit)
         # 地址信息
         self.url_edit = QLineEdit(self)
-        self.layout.addWidget(QLabel(f"{self.lang['ui.table_main_3']}:"))
-        self.layout.addWidget(self.url_edit)
+        layout.addWidget(QLabel(f"{self.lang['ui.table_main_3']}:"))
+        layout.addWidget(self.url_edit)
         # 在两个组件之间添加弹性空间
-        self.layout.addStretch()
+        layout.addStretch()
         # 确认按钮
         self.ok_button = QPushButton(self.lang['ui.dialog_settings_main_11'], self)
         self.ok_button.clicked.connect(self.accept)
-        self.layout.addWidget(self.ok_button)
+        layout.addWidget(self.ok_button)

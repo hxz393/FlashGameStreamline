@@ -1,5 +1,5 @@
 """
-本模块提供了一个用于创建和管理退出动作的类 ActionExit，主要用于程序退出。
+本模块提供程序退出功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class ActionExit(QObject):
     """
-    这个类提供了一个退出动作的创建和管理。
+    退出动作的类。
 
     :param lang_manager: 语言管理器，用于更新动作的显示语言。
     """

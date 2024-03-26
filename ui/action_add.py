@@ -7,11 +7,10 @@
 """
 
 import logging
-from typing import Dict, Union
 
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QTableWidget, QDialog, QWidget, QHBoxLayout, QCheckBox, QTableWidgetItem
+from PyQt5.QtWidgets import QAction, QTableWidget, QDialog
 
 from lib.get_resource_path import get_resource_path
 from ui.config_manager import ConfigManager
@@ -62,32 +61,6 @@ class ActionAdd(QObject):
         self.lang = self.lang_manager.get_lang()
         self.action_add.setText(self.lang['ui.action_add_1'])
         self.action_add.setStatusTip(self.lang['ui.action_add_2'])
-
-    def insert_row(self,
-                   row: int,
-                   url: str,
-                   info: Dict[str, Union[str, bool]]) -> None:
-        """
-        向表格中插入一行数据。
-
-        :param row: 要插入的行索引。
-        :param url: 用于处理的 URL 地址。
-        :param info: 包括描述和启用状态的映射字典。例如：{"active": true, "description": "xxx"}
-        :return: 无返回值。
-        """
-        # 创建一个 QWidget 及其布局来存放启用状态复选框
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setContentsMargins(0, 0, 0, 0)
-        check_box = QCheckBox()
-        check_box.setCheckState(Qt.Checked if info["active"] else Qt.Unchecked)
-        check_box.setEnabled(False)
-        layout.addWidget(check_box)
-        # 向单元格插入一行内容
-        self.table.setCellWidget(row, 0, widget)
-        self.table.setItem(row, 1, QTableWidgetItem(info["description"]))
-        self.table.setItem(row, 2, QTableWidgetItem(url))
 
     def add_item(self) -> None:
         """

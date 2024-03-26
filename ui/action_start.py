@@ -8,6 +8,7 @@
 
 import asyncio
 import logging
+import socket
 from threading import Thread
 from typing import List
 
@@ -143,6 +144,12 @@ class ActionStart(QObject):
                 self.action_start.setEnabled(True)
                 return
 
+            # 检查端口是否可用
+            if not self.is_port_available(port):
+                message_show('Critical', self.lang['ui.action_start_5'])
+                self.action_start.setEnabled(True)
+                return
+
             # 新开线程启动服务
             thread = Thread(target=self.start_proxy, args=(port, patterns))
             thread.daemon = True
@@ -152,6 +159,21 @@ class ActionStart(QObject):
         except Exception:
             logger.exception('Failed to start proxy!')
             self.status_updated.emit(self.lang['label_status_error'])
+
+    @staticmethod
+    def is_port_available(port: int) -> bool:
+        """
+        检查指定端口是否可用。
+
+        :param port: 要检查的端口号。
+        :return: 端口可用返回 True，否则返回 False。
+        """
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("", port))
+                return True
+            except OSError:
+                return False
 
     def start_proxy(self,
                     port: int,
@@ -181,4 +203,5 @@ class ActionStart(QObject):
         try:
             await m.run()
         except Exception:
+            print('错误〉！©')
             logger.exception("An error occurred!")

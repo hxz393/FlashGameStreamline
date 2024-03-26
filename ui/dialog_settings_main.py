@@ -14,10 +14,8 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QDialogButtonBox, QHBoxLayout, Q
 
 from config.lang_dict_all import LANG_DICTS
 from lib.get_resource_path import get_resource_path
-from lib.read_json import read_json
 from ui.config_manager import ConfigManager
 from ui.lang_manager import LangManager
-from ui.main_table import MainTable
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +23,6 @@ logger = logging.getLogger(__name__)
 class DialogSettingsMain(QDialog):
     """
     主设置对话框类。
-
-    此类提供了一个对话框界面，供用户修改应用程序的主要设置，例如语言、配置中心类型、服务名替换规则等。
-    它允许用户对这些设置进行更改，并通过按下确定按钮来保存这些更改。
 
     :param lang_manager: 语言管理器实例。
     :param config_manager: 配置管理器实例。
@@ -91,10 +86,10 @@ class DialogSettingsMain(QDialog):
         # 输入框：用户配置文件路径
         input_layout = QHBoxLayout()
         self.config_line_edit = QLineEdit(self.config_main.get('config_user_path', ''))
-        self.select_file_button = QPushButton(self.lang['ui.dialog_settings_main_6'], self)
-        self.select_file_button.clicked.connect(self._open_file_dialog)
         input_layout.addWidget(self.config_line_edit)
-        input_layout.addWidget(self.select_file_button)
+        select_file_button = QPushButton(self.lang['ui.dialog_settings_main_6'], self)
+        select_file_button.clicked.connect(self._open_file_dialog)
+        input_layout.addWidget(select_file_button)
         main_layout.addWidget(QLabel(self.lang['ui.dialog_settings_main_4']))
         main_layout.addLayout(input_layout)
         # 分组
@@ -107,27 +102,23 @@ class DialogSettingsMain(QDialog):
         """
         创建并返回对话框底部的按钮布局。
 
-        此私有方法用于构建对话框底部的按钮，包括确定和取消按钮。
-
         :return: 包含确定和取消按钮的布局。
         """
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.ok_button = self.button_box.button(QDialogButtonBox.Ok)
-        self.ok_button.setText(self.lang['ui.dialog_settings_main_11'])
-        self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
-        self.cancel_button.setText(self.lang['ui.dialog_settings_main_12'])
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        ok_button = button_box.button(QDialogButtonBox.Ok)
+        ok_button.setText(self.lang['ui.dialog_settings_main_11'])
+        cancel_button = button_box.button(QDialogButtonBox.Cancel)
+        cancel_button.setText(self.lang['ui.dialog_settings_main_12'])
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
 
         button_layout = QHBoxLayout()
-        button_layout.addWidget(self.button_box)
+        button_layout.addWidget(button_box)
         button_layout.setContentsMargins(0, 10, 0, 0)
         return button_layout
 
     def reject(self) -> None:
         """
-        处理对话框的取消操作。
-
         当用户点击取消按钮时，关闭对话框并忽略所有未保存的更改。
 
         :return: 无返回值。
@@ -136,8 +127,6 @@ class DialogSettingsMain(QDialog):
 
     def accept(self) -> None:
         """
-        处理对话框的确认操作。
-
         当用户点击确认按钮时，此方法会更新配置，并尝试将其写入配置文件。如果成功，则发出状态更新信号；如果失败，则显示错误消息。
 
         :return: 无返回值。
@@ -145,12 +134,8 @@ class DialogSettingsMain(QDialog):
         try:
             # 对比语言值，有修改则在 LangManager 类中修改
             self._check_language_change()
-            # 读取用户输入的新配置
+            # 更新配置
             self._update_config()
-            # 更新 ConfigManager 类实例中的配置
-            self.config_manager.update_config('main', self.config_main)
-            # 发送更新成功状态信号
-            self.status_updated.emit(self.lang['ui.dialog_settings_main_13'])
             super().accept()
             logger.info("Settings saved")
         except Exception:
@@ -159,7 +144,7 @@ class DialogSettingsMain(QDialog):
 
     def _open_file_dialog(self) -> None:
         """
-        打开文件选择对话框，将文件路径填入输入框
+        打开文件选择对话框，将文件路径填入对应文本框
 
         :return: 无返回值。
         """
@@ -170,15 +155,18 @@ class DialogSettingsMain(QDialog):
 
     def _update_config(self) -> None:
         """
-        更新配置信息。
-
-        从对话框中收集用户输入的数据，并更新内存中的配置信息。不直接写入文件。
+        从对话框中收集用户输入的数据，并更新配置。
 
         :return: 无返回值。
         """
         self.config_main['lang'] = self.language_combo_box.currentText()
         self.config_main['server_port'] = self.port_line_edit.text()
         self.config_main['config_user_path'] = self.config_line_edit.text()
+
+        # 更新 ConfigManager 类实例中的配置
+        self.config_manager.update_config('main', self.config_main)
+        # 发送更新成功状态信号
+        self.status_updated.emit(self.lang['ui.dialog_settings_main_13'])
 
     def _check_language_change(self) -> None:
         """

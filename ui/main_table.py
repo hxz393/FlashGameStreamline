@@ -7,10 +7,10 @@
 """
 
 import logging
-from typing import List, Dict, Union
+from typing import Dict, Union
 
 from PyQt5.QtCore import Qt, pyqtSignal, QPoint
-from PyQt5.QtWidgets import QHeaderView, QMenu, QAction
+from PyQt5.QtWidgets import QHeaderView, QMenu, QAction, QWidget, QHBoxLayout, QCheckBox, QTableWidgetItem
 from PyQt5.QtWidgets import QTableWidget
 
 from config.settings import DEFAULT_CONFIG_USER
@@ -38,11 +38,12 @@ class MainTable(QTableWidget):
                  lang_manager: LangManager,
                  config_manager: ConfigManager):
         super().__init__()
+        # 接受更新信号，更新语言和数据
         self.lang_manager = lang_manager
         self.lang_manager.lang_updated.connect(self.update_lang)
         self.config_manager = config_manager
         self.config_manager.config_user_updated.connect(self.insert_data)
-        # 实例化用到的组件
+        # 实例化用到的编辑动作
         self.actionEnable = ActionEnable(self.lang_manager, self.config_manager, self)
         self.actionEnable.status_updated.connect(self.forward_status)
         self.actionDisable = ActionDisable(self.lang_manager, self.config_manager, self)
@@ -53,47 +54,10 @@ class MainTable(QTableWidget):
         self.actionEdit.status_updated.connect(self.forward_status)
         self.actionDelete = ActionDelete(self.lang_manager, self.config_manager, self)
         self.actionDelete.status_updated.connect(self.forward_status)
-        self.init_ui()
-        self.insert_data()
-
-    def init_ui(self) -> None:
-        """
-        初始化用户界面。
-
-        此方法负责设置表格的基本属性，如列数、表头标签、选择行为等。
-
-        :return: 无返回值。
-        """
         # 先运行语言更新，里面有表头定义
         self.update_lang()
-        # 配置表格基本属性
-        self.setColumnCount(len(self.column_headers))
-        self.setHorizontalHeaderLabels(self.column_headers)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.setStyleSheet("QTableWidget {border: 0;}")
-        self.setSelectionBehavior(QTableWidget.SelectRows)
-        # 设置表头
-        self.verticalHeader().setVisible(False)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.horizontalHeader().setMinimumSectionSize(50)
-        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        # 为表单设置上下文菜单事件
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self._cell_context_menu)
-
-    def insert_data(self) -> None:
-        """
-        向表格中插入全量数据。
-
-        :return: 无返回值。
-        """
-        # 获取用户配置
-        config_user = self.config_manager.get_config('user') or DEFAULT_CONFIG_USER
-        # 设置行数，插入数据
-        self.setRowCount(len(config_user))
-        for row, (url, info) in enumerate(config_user.items()):
-            self.actionAdd.insert_row(row, url, info)
+        self.init_ui()
+        self.insert_data()
 
     def update_lang(self) -> None:
         """
@@ -109,6 +73,67 @@ class MainTable(QTableWidget):
         ]
         # 重新应用到表头
         self.setHorizontalHeaderLabels(self.column_headers)
+
+    def init_ui(self) -> None:
+        """
+        初始化用户界面。
+
+        :return: 无返回值。
+        """
+        # 配置表格基本属性
+        self.setColumnCount(len(self.column_headers))
+        self.setHorizontalHeaderLabels(self.column_headers)
+        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.setStyleSheet("QTableWidget {border: 0;}")
+        self.setSelectionBehavior(QTableWidget.SelectRows)
+        # 设置表头
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.horizontalHeader().setMinimumSectionSize(50)
+        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        # 为表单设置右键菜单
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._cell_context_menu)
+
+    def insert_data(self) -> None:
+        """
+        向表格中插入全量数据。
+
+        :return: 无返回值。
+        """
+        # 获取用户配置
+        config_user = self.config_manager.get_config('user') or DEFAULT_CONFIG_USER
+        # 设置行数，插入数据
+        self.setRowCount(len(config_user))
+        for row, (url, info) in enumerate(config_user.items()):
+            self.insert_row(row, url, info)
+
+    def insert_row(self,
+                   row: int,
+                   url: str,
+                   info: Dict[str, Union[str, bool]]) -> None:
+        """
+        向表格中插入一行数据。
+
+        :param row: 要插入的行索引。
+        :param url: 用于处理的 URL 地址。
+        :param info: 包括描述和启用状态的映射字典。例如：{"active": true, "description": "xxx"}
+        :return: 无返回值。
+        """
+        # 创建一个 QWidget 及其布局来存放启用状态复选框
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setContentsMargins(0, 0, 0, 0)
+        check_box = QCheckBox()
+        check_box.setCheckState(Qt.Checked if info["active"] else Qt.Unchecked)
+        check_box.setEnabled(False)
+        layout.addWidget(check_box)
+        # 向单元格插入一行内容
+        self.setCellWidget(row, 0, widget)
+        self.setItem(row, 1, QTableWidgetItem(info["description"]))
+        self.setItem(row, 2, QTableWidgetItem(url))
 
     def _cell_context_menu(self, pos: QPoint) -> None:
         """
@@ -137,23 +162,17 @@ class MainTable(QTableWidget):
         """
         self.status_updated.emit(message)
 
-    def get_data(self) -> List[Dict[str, Union[str, bool]]]:
+    def get_data(self) -> Dict[str, Dict[str, any]]:
         """
-        获取表格中的数据。
+        获取表格中的数据，未用到。
 
-        此方法用于清除表格中的所有数据，通常在数据更新或重置时使用。
-
-        :return: 返回数据列表，其中每个元素都是一个字典，包含了单元格的选中状态、描述和链接。
+        :return: 返回数据字典，其中每个元素都是一个字典，包含了单元格的选中状态、描述和链接。
         """
-        return [{"active": self.cellWidget(row, 0).layout().itemAt(0).widget().isChecked(),
-                 "description": self.item(row, 1).text(),
-                 "url": self.item(row, 2).text()} for row in range(self.rowCount())]
+        return {self.item(row, 2).text(): {"active": self.cellWidget(row, 0).layout().itemAt(0).widget().isChecked(), "description": self.item(row, 1).text()} for row in range(self.rowCount())}
 
     def clear(self) -> None:
         """
-        清空表格中的所有行。
-
-        此方法用于清除表格中的所有数据，通常在数据更新或重置时使用。
+        清空表格中的所有行，未用到。
 
         :return: 无返回值。
         """

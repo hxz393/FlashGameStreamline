@@ -9,8 +9,7 @@
 import logging
 
 from PyQt5.QtCore import Qt, QByteArray, QBuffer, QIODevice
-from PyQt5.QtGui import QIcon, QPixmap, QPainter
-from PyQt5.QtSvg import QSvgRenderer
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QFormLayout, QTextEdit
 
 from config.settings import VERSION_INFO, GITHUB_URL, GITHUB_PROFILE, PROGRAM_NAME, WEBSITE_URL, AUTHOR_NAME
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class DialogAbout(QDialog):
     """
-    `DialogAbout` 类用于创建关于对话框，展示程序的相关信息。
+    此类用于创建关于对话框，展示程序的相关信息。
 
     :param lang_manager: 语言管理器，用于更新动作的显示语言。
     """
@@ -93,7 +92,7 @@ class DialogAbout(QDialog):
         byte_array = QByteArray()
         buffer = QBuffer(byte_array)
         buffer.open(QIODevice.WriteOnly)
-        pixmap.save(buffer, "PNG")  # 保存为 PNG 格式
+        pixmap.save(buffer, "PNG")
         base64_data = byte_array.toBase64().data().decode()
 
         # 设置 HTML 链接和图像
@@ -133,7 +132,7 @@ class DialogAbout(QDialog):
         """
         创建对话框中间区域。
 
-        :return: 包含中间区域的QFormLayout对象。
+        :return: 包含中间区域的 QFormLayout 对象。
         """
         # 多行内容
         infos = {

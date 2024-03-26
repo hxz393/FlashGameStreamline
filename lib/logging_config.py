@@ -16,7 +16,7 @@ from typing import Optional
 
 def logging_config(log_file: Optional[str] = None,
                    console_output: bool = False,
-                   log_level: str = 'INFO',
+                   log_level: str = 'NOTSET',
                    max_log_size: int = 10,
                    backup_count: int = 10,
                    default_log_format: str = '%(asctime)s - %(levelname)s - %(module)s::%(funcName)s::%(lineno)d - %(message)s'

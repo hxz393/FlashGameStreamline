@@ -9,10 +9,11 @@
 import logging
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtWidgets import QDialog, QLineEdit, QDialogButtonBox, QHBoxLayout, QVBoxLayout, QGroupBox, QLabel, QComboBox, QPushButton, QFileDialog
 
 from config.lang_dict_all import LANG_DICTS
+from config.settings import DEFAULT_CONFIG_MAIN
 from lib.get_resource_path import get_resource_path
 from ui.config_manager import ConfigManager
 from ui.lang_manager import LangManager
@@ -81,6 +82,9 @@ class DialogSettingsMain(QDialog):
         main_layout.addWidget(self.language_combo_box)
         # 输入框：服务端口
         self.port_line_edit = QLineEdit(self.config_main.get('server_port', ''))
+        # 设置验证器为1到65535
+        self.port_line_edit.setValidator(QIntValidator(1, 65535, self))
+        self.port_line_edit.textChanged.connect(self._check_port_change)
         main_layout.addWidget(QLabel(self.lang['ui.dialog_settings_main_3']))
         main_layout.addWidget(self.port_line_edit)
         # 输入框：用户配置文件路径
@@ -184,3 +188,17 @@ class DialogSettingsMain(QDialog):
         """
         if self.language_combo_box.currentText() != self.config_main.get('lang', 'English'):
             self.lang_manager.update_lang(self.language_combo_box.currentText())
+
+    def _check_port_change(self, text: str) -> None:
+        """
+        检查端口输入是否合法，不合法则设为默认值。
+
+        :return: 无返回值。
+        """
+        if not text:
+            self.port_line_edit.setText(DEFAULT_CONFIG_MAIN['server_port'])
+        else:
+            # 如果当前输入的数字超出范围，清除输入
+            value = int(text)
+            if value < 1 or value > 65535:
+                self.port_line_edit.clear()

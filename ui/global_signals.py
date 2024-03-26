@@ -23,7 +23,6 @@ class GlobalSignals(QObject):
     >>> close_signals.close_all.emit()
     Close ALL Windows
     """
-
     close_all = pyqtSignal()
 
 

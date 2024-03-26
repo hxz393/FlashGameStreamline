@@ -1,5 +1,5 @@
 """
-这是一个用于显示不同类型消息框的辅助模块。
+此模块用于展示弹出窗口。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -21,10 +21,8 @@ def message_show(message_type: str,
     """
     显示指定类型的消息框。
 
-    根据提供的消息类型和文本内容，显示相应的消息框。支持的消息类型包括 'Critical'、'Warning' 和 'Information'。
-
     :param message_type: 消息类型，支持 'Critical'、'Warning' 和 'Information'。
-    :param text: 消息框中显示的文本内容。
+    :param text: 消息框中显示的纯文本内容。
     :return: 无返回值。
     """
     try:

@@ -1,5 +1,5 @@
 """
-本模块提供了用于日志查看和管理的功能，包括日志显示、过滤、清除等。
+本模块提供了用于日志查看和管理的功能，包括日志显示、过滤、清空等。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -15,7 +15,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QColor, QTextCharFormat, QTextCursor, QIcon
 from PyQt5.QtWidgets import QDialog, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QComboBox, QLabel
 
-from config.settings import GITHUB_URL, LOG_PATH, LOG_COLORS, LOG_DEFAULT_LEVEL, LOG_LINES, LOG_UPDATE_RATE
+from config.settings import GITHUB_URL, LOG_PATH, LOG_COLORS, LOG_LEVELS, LOG_DEFAULT_LEVEL, LOG_LINES, LOG_UPDATE_RATE
 from lib.get_resource_path import get_resource_path
 from lib.write_list_to_file import write_list_to_file
 from ui.lang_manager import LangManager
@@ -27,21 +27,18 @@ class DialogLogs(QDialog):
     """
     日志对话框类，用于显示和管理应用程序的日志。
 
-    此类创建一个对话框，显示应用程序的日志内容，并提供过滤、清除和实时更新日志的功能。
-
     :param lang_manager: 语言管理器，用于界面语言的国际化。
     """
-    LOG_LEVELS = [i for i in LOG_COLORS.keys()]
-    LOG_PATTERN = re.compile(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} - (DEBUG|INFO|WARNING|ERROR|CRITICAL) - ')
     status_updated = pyqtSignal(str)
+    log_pattern = re.compile(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} - (DEBUG|INFO|WARNING|ERROR|CRITICAL) - ')
 
     def __init__(self, lang_manager: LangManager):
         super().__init__(flags=Qt.Dialog | Qt.WindowCloseButtonHint)
         self.lang_manager = lang_manager
         self.lang_manager.lang_updated.connect(self.update_lang)
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self) -> None:
+    def init_ui(self) -> None:
         """
         初始化用户界面组件。
 
@@ -59,7 +56,7 @@ class DialogLogs(QDialog):
         self.label = QLabel(self)
         self.combo_box = QComboBox(self)
         self.combo_box.addItem(LOG_DEFAULT_LEVEL, None)
-        self.combo_box.addItems(DialogLogs.LOG_LEVELS)
+        self.combo_box.addItems(LOG_LEVELS)
         self.combo_box.currentIndexChanged.connect(self.filter_logs)
 
         # 创建按钮
@@ -118,8 +115,6 @@ class DialogLogs(QDialog):
 
     def load_logs(self) -> None:
         """
-        加载并处理日志文件。
-
         读取日志文件的内容，并根据当前的筛选级别显示日志信息。
 
         :return: 无返回值。
@@ -135,8 +130,6 @@ class DialogLogs(QDialog):
 
     def clear_logs(self) -> None:
         """
-        清除日志显示。
-
         清空文本编辑器中的日志，并清空日志文件。
 
         :return: 无返回值。
@@ -151,8 +144,6 @@ class DialogLogs(QDialog):
 
     def update_logs(self) -> None:
         """
-        更新日志内容。
-
         读取新的日志内容并追加到文本编辑器。
 
         :return: 无返回值。
@@ -184,13 +175,11 @@ class DialogLogs(QDialog):
             logger.info("tail -f run.log")
         else:
             self.update_timer.stop()
-            logger.info("break `tail -f run.log`")
+            logger.info("break tail")
 
     @staticmethod
     def _read_logs_file() -> str:
         """
-        读取日志文件内容。
-
         此方法从日志文件中读取所有日志内容并返回。
 
         :return: 日志文件的内容。
@@ -208,14 +197,12 @@ class DialogLogs(QDialog):
                       logs_content: str,
                       filter_level: Optional[str] = None) -> None:
         """
-        处理并显示日志。
-
         将日志内容按照指定的过滤级别进行处理，并显示在文本编辑器中。
 
         :param logs_content: 完整的日志内容。
         :param filter_level: 要筛选的日志级别，可选。
         """
-        start_positions = [match.start() for match in DialogLogs.LOG_PATTERN.finditer(logs_content)]
+        start_positions = [match.start() for match in DialogLogs.log_pattern.finditer(logs_content)]
 
         for i in range(len(start_positions)):
             start = start_positions[i]
@@ -226,13 +213,11 @@ class DialogLogs(QDialog):
 
     def _parse_and_display_log(self, log_entry: str) -> None:
         """
-        解析并显示单条日志。
-
         解析单条日志信息，并以适当的颜色显示在文本编辑器中。
 
         :param log_entry: 单条日志的内容。
         """
-        match = DialogLogs.LOG_PATTERN.search(log_entry)
+        match = DialogLogs.log_pattern.search(log_entry)
         if match:
             log_level = match.group(1)
             color = LOG_COLORS.get(log_level, "black")
@@ -242,8 +227,6 @@ class DialogLogs(QDialog):
 
     def filter_logs(self) -> None:
         """
-        根据选定级别过滤日志。
-
         根据用户在下拉框中选择的日志级别筛选日志。
 
         :return: 无返回值。
@@ -273,8 +256,6 @@ class DialogLogs(QDialog):
                     log: str,
                     color: str) -> None:
         """
-        将日志添加到文本编辑器。
-
         使用指定的颜色将单条日志文本添加到文本编辑器中。
 
         :param log: 要添加的日志文本。
@@ -292,8 +273,6 @@ class DialogLogs(QDialog):
     def _is_log_entry_of_level(log_entry: str,
                                selected_level: str) -> bool:
         """
-        判断日志条目是否为选定级别。
-
         检查日志条目是否为或高于用户选定的日志级别。
 
         :param log_entry: 单条日志的内容。
@@ -302,23 +281,21 @@ class DialogLogs(QDialog):
         """
         if selected_level == LOG_DEFAULT_LEVEL:
             return True
-        selected_index = DialogLogs.LOG_LEVELS.index(selected_level)
-        for level in DialogLogs.LOG_LEVELS[selected_index:]:
+        selected_index = LOG_LEVELS.index(selected_level)
+        for level in LOG_LEVELS[selected_index:]:
             if f' - {level} - ' in log_entry:
                 return True
         return False
 
     def open_github(self) -> None:
         """
-        打开GitHub问题页面。
-
-        在用户点击反馈按钮时，打开 GitHub 的问题跟踪页面。
+        在用户点击反馈按钮时，打开 GitHub 的问题反馈页面。
 
         :return: 无返回值。
         """
         try:
             webbrowser.open(f'{GITHUB_URL}/issues')
-            logger.info("View Github")
+            logger.info("View Github Issue")
         except Exception:
             logger.exception("Failed to open GitHub URL")
             self.status_updated.emit(self.lang['label_status_error'])

@@ -13,16 +13,16 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 
 from lib.get_resource_path import get_resource_path
+from ui.config_manager import ConfigManager
 from ui.dialog_settings_main import DialogSettingsMain
 from ui.lang_manager import LangManager
-from ui.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
 
 
 class ActionSettingMain(QObject):
     """
-    设置界面操作类，负责设置窗口的初始化、语言更新和打开设置对话框。
+    设置界面操作类。
 
     :param lang_manager: 语言管理器，用于设置和更新界面语言。
     :param config_manager: 配置管理器，用于读取和修改设置。

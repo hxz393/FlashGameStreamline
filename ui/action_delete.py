@@ -69,16 +69,15 @@ class ActionDelete(QObject):
         """
         try:
             config_user = self.config_manager.get_config('user')
-            # 获取选中行的索引，并按照从大到小的顺序排序，从而保证删除的顺序不会乱
-            rows_to_delete = sorted([index.row() for index in self.table.selectionModel().selectedRows()], reverse=True)
-            # 遍历并删除行，以及更新配置
-            for row in rows_to_delete:
-                config_user.pop(self.table.item(row, 2).text(), None)
-                self.table.removeRow(row)
+            rows = len(self.table.selectionModel().selectedRows())
+
+            # 删除配置中的键值对
+            for item in self.table.selectedItems():
+                config_user.pop(self.table.item(item.row(), 2).text(), None)
 
             self.config_manager.update_config('user', config_user)
-            self.status_updated.emit(f"{len(rows_to_delete)} {self.lang['ui.action_delete_3']}")
-            logger.info(f"{len(rows_to_delete)} Items deleted.")
+            self.status_updated.emit(f"{rows} {self.lang['ui.action_delete_3']}")
+            logger.info(f"{rows} Items deleted.")
         except Exception:
             logger.exception("Error occurred while delete items")
             self.status_updated.emit(self.lang['label_status_error'])

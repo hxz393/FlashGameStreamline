@@ -63,25 +63,19 @@ class ActionDisable(QObject):
 
     def disable_items(self) -> None:
         """
-        执行停用选中项目的操作，并将其写入配置文件。
+        执行停用选中项目的操作，并更新配置文件。
 
         :return: 无返回值。
         """
         try:
-            # 获取配置
             config_user = self.config_manager.get_config('user')
             rows = len(self.table.selectionModel().selectedRows())
 
+            # 更新配置中的启用状态
             for item in self.table.selectedItems():
-                row = item.row()
-                # 设置复选框为不勾选
-                self.table.cellWidget(row, 0).layout().itemAt(0).widget().setChecked(False)
-                # 更新配置中的启用状态
-                config_user[self.table.item(row, 2).text()]['active'] = False
+                config_user[self.table.item(item.row(), 2).text()]['active'] = False
 
-            # 更新配置管理器中的配置
             self.config_manager.update_config('user', config_user)
-            # 发送到状态栏
             self.status_updated.emit(f"{rows} {self.lang['ui.action_disable_3']}")
             logger.info(f"{rows} Items disabled.")
         except Exception:

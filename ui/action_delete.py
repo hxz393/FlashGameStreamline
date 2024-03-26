@@ -75,6 +75,7 @@ class ActionDelete(QObject):
             for row in rows_to_delete:
                 config_user.pop(self.table.item(row, 2).text(), None)
                 self.table.removeRow(row)
+
             self.config_manager.update_config('user', config_user)
             self.status_updated.emit(f"{len(rows_to_delete)} {self.lang['ui.action_delete_3']}")
             logger.info(f"{len(rows_to_delete)} Items deleted.")

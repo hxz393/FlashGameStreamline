@@ -1,5 +1,5 @@
 """
-本模块提供用户界面中的编辑项功能。
+本模块提供编辑规则功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -7,16 +7,15 @@
 """
 
 import logging
-from typing import Dict, Union
 
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QTableWidget, QDialog, QWidget, QHBoxLayout, QCheckBox, QTableWidgetItem
+from PyQt5.QtWidgets import QAction, QTableWidget, QDialog
 
 from lib.get_resource_path import get_resource_path
 from ui.config_manager import ConfigManager
-from ui.lang_manager import LangManager
 from ui.dialog_table import DialogTable
+from ui.lang_manager import LangManager
 
 logger = logging.getLogger(__name__)
 
@@ -65,33 +64,29 @@ class ActionEdit(QObject):
 
     def edit_item(self) -> None:
         """
-        修改规则操作，并将其写入配置文件。
+        修改规则操作，并更新配置文件。
 
         :return: 无返回值。
         """
         try:
-            # 获取配置
             config_user = self.config_manager.get_config('user')
             row = self.table.currentRow()
-            # 打开弹窗
             dialog = DialogTable(self.lang_manager)
-            # 插入数据到对话框
             dialog.description_edit.setText(self.table.item(row, 1).text())
             dialog.url_edit.setText(self.table.item(row, 2).text())
-            if dialog.exec_() == QDialog.Accepted:
-                # 根据行索引获取对应的配置键值
-                key_to_delete = self.table.item(row, 2).text()
-                if key_to_delete in config_user:
-                    # 从配置中删除对应的键值对
-                    del config_user[key_to_delete]
-                self.table.item(row, 1).setText(dialog.description_edit.text())
-                self.table.item(row, 2).setText(dialog.url_edit.text())
-                # 修改配置中的条目
-                config_user[dialog.url_edit.text()] = {"active": False, "description": dialog.description_edit.text()}
 
-            # 更新配置管理器中的配置
+            # 打开输入对话框，获取用户输入
+            if dialog.exec_() == QDialog.Accepted:
+                description = dialog.description_edit.text()
+                url = dialog.url_edit.text()
+                # 从配置中删除原条目再插入新条目。
+                config_user.pop(self.table.item(row, 2).text(), None)
+                config_user[url] = {"active": False, "description": description}
+                # 更新表格中的条目
+                self.table.item(row, 1).setText(description)
+                self.table.item(row, 2).setText(url)
+
             self.config_manager.update_config('user', config_user)
-            # 发送到状态栏
             self.status_updated.emit(self.lang['ui.action_edit_3'])
             logger.info("Item modified.")
         except Exception:

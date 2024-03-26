@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QWidget, QToolBar
 
@@ -18,7 +19,7 @@ from lib.get_resource_path import get_resource_path
 from lib.hide_console import hide_console
 from lib.logging_config import logging_config
 from lib.write_json import write_json
-from ui import (Global_Signals, LangManager, ConfigManager, StatusBar, MainTable,
+from ui import (Global_Signals, LangManager, ConfigManager, StatusBar, MainTable, TrayIcon,
                 ActionStart, ActionExit, ActionSettingMain, ActionLogs, ActionUpdate, ActionAbout,
                 ActionEnable, ActionDisable, ActionAdd, ActionEdit, ActionDelete)
 
@@ -61,6 +62,8 @@ class FlashGameStreamLine(QMainWindow):
         """
         # 创建状态栏
         self.status_bar = StatusBar(self.lang_manager)
+        # 创建托盘
+        self.tray_icon = TrayIcon(self.lang_manager, self)
         # 创建表单
         self.table = MainTable(self.lang_manager, self.config_manager)
         # 创建动作和连接信号
@@ -92,6 +95,7 @@ class FlashGameStreamLine(QMainWindow):
         :return: 无返回值。
         """
         self.table.status_updated.connect(self.status_bar.show_message)
+        self.tray_icon.status_updated.connect(self.status_bar.show_message)
         self.actionStart = ActionStart(self.lang_manager, self.config_manager)
         self.actionStart.status_updated.connect(self.status_bar.show_message)
         self.actionSettingMain = ActionSettingMain(self.lang_manager, self.config_manager)
@@ -186,7 +190,6 @@ class FlashGameStreamLine(QMainWindow):
         将窗口移动到屏幕中心。
 
         :return: 无返回值。
-        :rtype: None
         """
         screen = QApplication.primaryScreen().geometry()
         x = (screen.width() - self.width()) / 2
@@ -207,6 +210,19 @@ class FlashGameStreamLine(QMainWindow):
             event.ignore()
         else:
             event.accept()
+
+    def changeEvent(self, event: QEvent):
+        """
+        重写最小化事件。当最小化主窗口时，隐藏到托盘图标。
+
+        :param event: 事件对象。
+        :return: 无返回值。
+        """
+        if event.type() == QEvent.WindowStateChange:
+            if self.isMinimized():
+                self.hide()
+                event.ignore()
+        super(FlashGameStreamLine, self).changeEvent(event)
 
 
 def main() -> None:

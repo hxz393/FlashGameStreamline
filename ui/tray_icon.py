@@ -68,10 +68,11 @@ class TrayIcon(QSystemTrayIcon):
         tray_menu.addSeparator()
         tray_menu.addAction(self.actionExit.action_exit)
 
-        self.setContextMenu(tray_menu)
+        # 设置事件、更新语言、显示托盘
         self.activated.connect(self.tray_icon_clicked)
-
+        self.setContextMenu(tray_menu)
         self.update_lang()
+        self.show()
 
     def update_lang(self) -> None:
         """

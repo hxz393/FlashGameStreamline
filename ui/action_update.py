@@ -1,5 +1,5 @@
 """
-此文件提供了软件更新检查和提示功能的实现。
+本模块提供软件更新检查功能。
 
 :author: assassing
 :contact: https://github.com/hxz393
@@ -23,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 class ActionUpdate(QObject):
     """
-    负责处理软件更新相关的用户界面操作。
-
-    此类负责创建更新操作相关的动作，绑定必要的信号和槽，以及触发更新检查。
+    软件更新检查操作的类。
 
     :param lang_manager: 语言管理器实例，用于更新界面语言。
     """
@@ -40,8 +38,6 @@ class ActionUpdate(QObject):
     def init_ui(self) -> None:
         """
         初始化更新操作的用户界面组件。
-
-        创建一个更新操作的 QAction 对象，并设置其图标、快捷键和触发方法。同时调用 `update_lang` 方法更新界面语言。
 
         :return: 无返回值。
         """
@@ -62,9 +58,7 @@ class ActionUpdate(QObject):
 
     def check_update(self) -> None:
         """
-        检查软件的更新。
-
-        此方法触发更新检查的流程，并在状态栏显示相关信息。创建 `UpdateChecker` 实例并启动线程。
+        检查软件是否有更新，检查结果以弹窗提示。
 
         :return: 无返回值。
         """
@@ -77,30 +71,26 @@ class ActionUpdate(QObject):
 
     def show_update_message(self, latest_version: str) -> None:
         """
-        显示软件更新的消息。
+        显示更新检查结果。
 
         :param latest_version: 最新版本号。
         :return: 无返回值。
         """
         self.action_update.setEnabled(True)
         self.status_updated.emit(self.lang['ui.action_update_9'])
-        current_version = VERSION_INFO
 
         if latest_version is None:
             message_show('Warning', self.lang['ui.action_update_3'])
-        elif latest_version == current_version:
-            message_show('Information', f"{self.lang['ui.action_update_5']}\n\n{self.lang['ui.action_update_7']}{current_version}")
+        elif latest_version == VERSION_INFO:
+            message_show('Information', f"{self.lang['ui.action_update_5']}\n\n{self.lang['ui.action_update_7']}{VERSION_INFO}")
         else:
-            message_show('Information', f"{self.lang['ui.action_update_4']}\n\n{self.lang['ui.action_update_6']}{current_version}\n{self.lang['ui.action_update_7']}{latest_version}")
+            message_show('Information', f"{self.lang['ui.action_update_4']}\n\n{self.lang['ui.action_update_6']}{VERSION_INFO}\n{self.lang['ui.action_update_7']}{latest_version}")
 
 
 class UpdateChecker(QThread):
     """
     用于后台检查软件更新的线程类。
 
-    此类继承自 QThread，并在后台执行更新检查操作。它会发出信号以通知主线程最新的版本信息。
-
-    使用 PyQt 的信号-槽机制来进行线程间的通信。
     """
     signal = pyqtSignal(str)
 
@@ -109,9 +99,7 @@ class UpdateChecker(QThread):
 
     def run(self) -> None:
         """
-        执行更新检查的主要逻辑。
-
-        此方法在线程启动时被调用。它从指定的 URL 获取最新版本信息，并通过信号发送。
+        执行更新检查的主要逻辑。此方法在线程启动时被调用，从指定的 URL 获取最新版本信息，并通过信号发送给主线程。
 
         :return: 无返回值。
         """
@@ -119,6 +107,6 @@ class UpdateChecker(QThread):
             latest_version = request_url(CHECK_UPDATE_URL)
             logger.info(f"The latest version: {latest_version}")
         except Exception:
-            logger.exception("An error occurred while checking for updates")
             latest_version = None
+            logger.exception("An error occurred while checking for updates")
         self.signal.emit(latest_version)

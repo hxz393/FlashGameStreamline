@@ -75,16 +75,10 @@ class ActionEdit(QObject):
             dialog.description_edit.setText(self.table.item(row, 1).text())
             dialog.url_edit.setText(self.table.item(row, 2).text())
 
-            # 打开输入对话框，获取用户输入
+            # 从配置中删除原条目再插入新条目
             if dialog.exec_() == QDialog.Accepted:
-                description = dialog.description_edit.text()
-                url = dialog.url_edit.text()
-                # 从配置中删除原条目再插入新条目。
                 config_user.pop(self.table.item(row, 2).text(), None)
-                config_user[url] = {"active": False, "description": description}
-                # 更新表格中的条目
-                self.table.item(row, 1).setText(description)
-                self.table.item(row, 2).setText(url)
+                config_user[dialog.url_edit.text()] = {"active": False, "description": dialog.description_edit.text()}
 
             self.config_manager.update_config('user', config_user)
             self.status_updated.emit(self.lang['ui.action_edit_3'])

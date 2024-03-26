@@ -96,22 +96,14 @@ class ActionAdd(QObject):
         :return: 无返回值。
         """
         try:
-            # 从配置管理器获取配置副本
             config_user = self.config_manager.get_config('user')
             dialog = DialogTable(self.lang_manager)
-            # 打开输入弹窗输入内容，点击确定后将条目插入到表格末尾
-            if dialog.exec_() == QDialog.Accepted:
-                row = self.table.rowCount()
-                info = {"active": False, "description": dialog.description_edit.text()}
-                url = dialog.url_edit.text()
-                self.table.insertRow(row)
-                self.insert_row(row, url, info)
-                # 更新配置
-                config_user[url] = info
 
-            # 更新配置管理器中的配置
+            # 打开输入弹窗输入内容，点击确定后更新配置
+            if dialog.exec_() == QDialog.Accepted:
+                config_user[dialog.url_edit.text()] = {"active": False, "description": dialog.description_edit.text()}
+
             self.config_manager.update_config('user', config_user)
-            # 发送到状态栏
             self.status_updated.emit(self.lang['ui.action_add_3'])
             logger.info("New Item added")
         except Exception:

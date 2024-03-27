@@ -4,3 +4,5 @@
 /build/
 /dist/
 /FlashGameStreamline.spec
+__pycache__
+/config/*.json

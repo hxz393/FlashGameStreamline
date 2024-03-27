@@ -154,6 +154,10 @@
 
 如上图所示，展示的是一个 NPC 的皮肤。若想屏蔽这类资源，可以将地址 `http://hua.61.com/resource/jobNpc/npcbody/` 新增到规则列表中。
 
+## 反馈问题
+
+程序运行异常时，先查看运行日志是否有显而易见的错误，然后查看所有 [Issue](https://github.com/hxz393/FlashGameStreamline/issues) 中是否有相同问题。如需进一步帮助，可以提交新 Issue ，并附上相关日志。
+
 
 
 # 更新日志

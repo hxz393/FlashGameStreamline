@@ -137,18 +137,15 @@ class ActionStart(QObject):
             port = int(config_main.get('server_port', 12345))
             patterns = [k for k, v in config_user.items() if v.get('active', False)]
 
-            # 开始按钮不可点击
-            self.action_start.setEnabled(False)
             if not patterns:
                 message_show('Warning', self.lang['ui.action_start_3'])
-                self.action_start.setEnabled(True)
                 return
-
-            # 检查端口是否可用
-            if not self.is_port_available(port):
+            elif not self.is_port_available(port):
                 message_show('Critical', self.lang['ui.action_start_5'])
-                self.action_start.setEnabled(True)
                 return
+            else:
+                # 开始按钮不可点击
+                self.action_start.setEnabled(False)
 
             # 新开线程启动服务
             thread = Thread(target=self.start_proxy, args=(port, patterns))

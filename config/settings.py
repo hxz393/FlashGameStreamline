@@ -6,7 +6,7 @@ CONFIG_MAIN_PATH = 'config/config_main.json'
 LOG_PATH = 'logs/run.log'
 # 程序信息
 PROGRAM_NAME = 'FlashGameStreamline'
-VERSION_INFO = 'v1.0.0'
+VERSION_INFO = 'v1.0.1'
 AUTHOR_NAME = 'assassing'
 CONTACT_MAIL = 'hxz393@gmail.com'
 WEBSITE_URL = 'https://blog.x2b.net'

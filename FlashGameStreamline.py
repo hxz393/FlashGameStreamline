@@ -233,6 +233,8 @@ def main() -> None:
     """
     try:
         app = QApplication(sys.argv)
+        # 设置不在最后一个窗口关闭时退出应用程序。否则最小化情况下，关闭子窗口会导致意外退出
+        app.setQuitOnLastWindowClosed(False)
         _ = FlashGameStreamLine()
         sys.exit(app.exec_())
     except Exception:

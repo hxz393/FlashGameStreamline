@@ -7,6 +7,7 @@
 """
 
 import asyncio
+import gc
 import logging
 import socket
 from threading import Thread
@@ -196,9 +197,23 @@ class ActionStart(QObject):
         m = DumpMaster(options.Options(listen_port=port, http2=True))
         m.addons.add(BlockAddon(patterns))
         m.addons.add(LoggerAddon())
+        # 启动定期垃圾回收任务
+        gc_task = asyncio.create_task(periodic_gc_collect(300))
 
         try:
             await m.run()
         except Exception:
-            print('错误〉！©')
             logger.exception("An error occurred!")
+        finally:
+            gc_task.cancel()
+
+
+async def periodic_gc_collect(interval_seconds: int = 3600):
+    """
+    每隔一定时间手动调用执行一次垃圾回收。
+
+    :param interval_seconds: 执行垃圾回收的间隔时间，以秒为单位。
+    """
+    while True:
+        await asyncio.sleep(interval_seconds)
+        gc.collect()

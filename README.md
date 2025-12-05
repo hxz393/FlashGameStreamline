@@ -60,7 +60,7 @@
 
 ## 开源许可
 
-本程序采用 [GPL-3.0 license](https://github.com/hxz393/BaiduPanFilesTransfers/blob/master/LICENSE) 许可证，对于违反开源社区基本规则、私自将开源项目用于商业目的的行为，属于侵权，开发者将追究相关法律责任。
+本程序采用 [GPL-3.0 license](https://github.com/hxz393/FlashGameStreamline/blob/master/LICENSE) 许可证，对于违反开源社区基本规则、私自将开源项目用于商业目的的行为，属于侵权，开发者将追究相关法律责任。
 
 
 
